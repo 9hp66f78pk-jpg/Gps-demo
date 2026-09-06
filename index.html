@@ -2,110 +2,111 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>GPS Demo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>عروض السيارات الإمارات</title>
 
 <style>
-body {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0b1220;
-    color: white;
-    text-align: center;
-    padding: 40px 20px;
+body{
+  margin:0;
+  padding:35px 20px;
+  background:#0b1220;
+  color:white;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-
-.card {
-    max-width: 420px;
-    margin: auto;
-    background: #162033;
-    padding: 30px 20px;
-    border-radius: 22px;
+.card{
+  max-width:430px;
+  margin:auto;
+  background:#182237;
+  border-radius:24px;
+  padding:32px 22px;
+  text-align:center;
 }
-
-button {
-    width: 100%;
-    padding: 18px;
-    margin-top: 20px;
-    border: 0;
-    border-radius: 14px;
-    font-size: 20px;
-    font-weight: bold;
-    background: #19c37d;
-    color: white;
+h1{font-size:30px;margin-bottom:12px}
+.offer{font-size:20px;line-height:1.8}
+.highlight{font-size:26px;font-weight:800;margin:20px 0}
+button{
+  width:100%;
+  border:0;
+  border-radius:16px;
+  padding:18px;
+  font-size:19px;
+  font-weight:700;
+  background:#59c789;
+  color:white;
 }
-
-#result {
-    margin-top: 25px;
-    line-height: 2;
-    font-size: 17px;
+.note{
+  margin-top:16px;
+  opacity:.75;
+  font-size:14px;
+  line-height:1.6;
 }
+#result{margin-top:20px;line-height:1.8}
 </style>
 </head>
 
 <body>
-
 <div class="card">
 
-<h1>📍 GPS Demo</h1>
+<h1>🚗 عروض السيارات في الإمارات</h1>
 
-<p>تجربة قراءة موقع هذا الجهاز</p>
+<div class="offer">
+احصل على أقل أسعار السيارات
+بأقساط شهرية مريحة
+</div>
 
-<button onclick="getLocation()">
-مشاركة موقعي
+<div class="highlight">
+بدون دفعة أولى
+</div>
+
+<p>اكتشف العروض المتوفرة بالقرب منك</p>
+
+<button onclick="findOffers()">
+📍 اعرض العروض القريبة مني
 </button>
 
-<div id="result">
-لم يتم طلب الموقع بعد
+<div class="note">
+سيطلب Safari إذنك باستخدام موقعك لعرض النتائج حسب منطقتك.
 </div>
+
+<div id="result"></div>
 
 </div>
 
 <script>
+function findOffers(){
 
-function getLocation() {
+ const box=document.getElementById("result");
 
-    const result = document.getElementById("result");
+ if(!navigator.geolocation){
+   box.innerHTML="خدمة الموقع غير مدعومة.";
+   return;
+ }
 
-    result.innerHTML = "جاري تحديد الموقع...";
+ box.innerHTML="جاري تحديد منطقتك...";
 
-    if (!navigator.geolocation) {
-        result.innerHTML = "هذا المتصفح لا يدعم GPS";
-        return;
-    }
+ navigator.geolocation.getCurrentPosition(
+   function(position){
 
-    navigator.geolocation.getCurrentPosition(
+     const lat=position.coords.latitude;
+     const lon=position.coords.longitude;
 
-        function(position) {
+     box.innerHTML=
+       "✅ تم تحديد منطقتك بنجاح<br>" +
+       "جاري البحث عن العروض القريبة...";
+   },
 
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
+   function(){
+     box.innerHTML=
+       "تعذر تحديد منطقتك. يرجى السماح باستخدام الموقع لعرض العروض القريبة.";
+   },
 
-            result.innerHTML =
-                "✅ تم تحديد الموقع<br><br>" +
-                "Latitude: " + lat.toFixed(6) + "<br>" +
-                "Longitude: " + lon.toFixed(6) + "<br>" +
-                "الدقة: ±" + Math.round(accuracy) + " متر<br><br>" +
-                "<a style='color:#4da6ff' target='_blank' href='https://maps.google.com/?q=" +
-                lat + "," + lon + "'>فتح الموقع على الخريطة</a>";
-        },
-
-        function(error) {
-            result.innerHTML =
-                "❌ تعذر الحصول على الموقع<br>" +
-                "تأكد من السماح لـ Safari باستخدام Location.";
-        },
-
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
-        }
-    );
+   {
+     enableHighAccuracy:true,
+     timeout:15000,
+     maximumAge:0
+   }
+ );
 }
-
 </script>
-
 </body>
 </html>
