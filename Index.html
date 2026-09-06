@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GPS Demo</title>
+
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0b1220;
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.card {
+    max-width: 420px;
+    margin: auto;
+    background: #162033;
+    padding: 30px 20px;
+    border-radius: 22px;
+}
+
+button {
+    width: 100%;
+    padding: 18px;
+    margin-top: 20px;
+    border: 0;
+    border-radius: 14px;
+    font-size: 20px;
+    font-weight: bold;
+    background: #19c37d;
+    color: white;
+}
+
+#result {
+    margin-top: 25px;
+    line-height: 2;
+    font-size: 17px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>📍 GPS Demo</h1>
+
+<p>تجربة قراءة موقع هذا الجهاز</p>
+
+<button onclick="getLocation()">
+مشاركة موقعي
+</button>
+
+<div id="result">
+لم يتم طلب الموقع بعد
+</div>
+
+</div>
+
+<script>
+
+function getLocation() {
+
+    const result = document.getElementById("result");
+
+    result.innerHTML = "جاري تحديد الموقع...";
+
+    if (!navigator.geolocation) {
+        result.innerHTML = "هذا المتصفح لا يدعم GPS";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            result.innerHTML =
+                "✅ تم تحديد الموقع<br><br>" +
+                "Latitude: " + lat.toFixed(6) + "<br>" +
+                "Longitude: " + lon.toFixed(6) + "<br>" +
+                "الدقة: ±" + Math.round(accuracy) + " متر<br><br>" +
+                "<a style='color:#4da6ff' target='_blank' href='https://maps.google.com/?q=" +
+                lat + "," + lon + "'>فتح الموقع على الخريطة</a>";
+        },
+
+        function(error) {
+            result.innerHTML =
+                "❌ تعذر الحصول على الموقع<br>" +
+                "تأكد من السماح لـ Safari باستخدام Location.";
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+
+</script>
+
+</body>
+</html>
