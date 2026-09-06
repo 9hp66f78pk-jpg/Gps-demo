@@ -1,112 +1,305 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>عروض السيارات الإمارات</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{
-  margin:0;
-  padding:35px 20px;
-  background:#0b1220;
-  color:white;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-.card{
-  max-width:430px;
-  margin:auto;
-  background:#182237;
-  border-radius:24px;
-  padding:32px 22px;
-  text-align:center;
-}
-h1{font-size:30px;margin-bottom:12px}
-.offer{font-size:20px;line-height:1.8}
-.highlight{font-size:26px;font-weight:800;margin:20px 0}
-button{
-  width:100%;
-  border:0;
-  border-radius:16px;
-  padding:18px;
-  font-size:19px;
-  font-weight:700;
-  background:#59c789;
-  color:white;
-}
-.note{
-  margin-top:16px;
-  opacity:.75;
-  font-size:14px;
-  line-height:1.6;
-}
-#result{margin-top:20px;line-height:1.8}
-</style>
+  <title>عروض السيارات في الإمارات</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0b1220;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 55px 20px;
+      text-align: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 430px;
+      background: #182136;
+      border-radius: 28px;
+      padding: 45px 28px;
+    }
+
+    h1 {
+      font-size: 38px;
+      margin: 0 0 28px;
+      line-height: 1.5;
+    }
+
+    .description {
+      font-size: 23px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .highlight {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 25px 0;
+    }
+
+    .near {
+      font-size: 20px;
+      margin-bottom: 25px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 20px;
+      padding: 23px 15px;
+      background: #70c890;
+      color: white;
+      font-size: 25px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+    }
+
+    #result {
+      margin-top: 28px;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .privacy {
+      margin-top: 25px;
+      color: #c4c8d2;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .coords {
+      direction: ltr;
+      background: #0b1220;
+      padding: 15px;
+      border-radius: 14px;
+      margin-top: 15px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 
 <body>
-<div class="card">
 
-<h1>🚗 عروض السيارات في الإمارات</h1>
+  <div class="card">
 
-<div class="offer">
-احصل على أقل أسعار السيارات
-بأقساط شهرية مريحة
-</div>
+    <h1>🚗 عروض السيارات في الإمارات</h1>
 
-<div class="highlight">
-بدون دفعة أولى
-</div>
+    <div class="description">
+      احصل على أقل أسعار السيارات بأقساط شهرية مريحة
+    </div>
 
-<p>اكتشف العروض المتوفرة بالقرب منك</p>
+    <div class="highlight">
+      بدون دفعة أولى
+    </div>
 
-<button onclick="findOffers()">
-📍 اعرض العروض القريبة مني
-</button>
+    <div class="near">
+      اكتشف العروض المتوفرة بالقرب منك
+    </div>
 
-<div class="note">
-سيطلب Safari إذنك باستخدام موقعك لعرض النتائج حسب منطقتك.
-</div>
+    <button id="locationBtn">
+      📍 اعرض العروض القريبة مني
+    </button>
 
-<div id="result"></div>
+    <div id="result"></div>
 
-</div>
+    <div class="privacy">
+      عند الضغط سيطلب Safari إذنك للوصول إلى موقعك.
+      في هذه النسخة التجريبية، عند موافقتك سيتم عرض
+      إحداثيات موقعك على الشاشة وحفظها في قاعدة بيانات
+      Firebase الخاصة بالتجربة.
+    </div>
 
-<script>
-function findOffers(){
+  </div>
 
- const box=document.getElementById("result");
 
- if(!navigator.geolocation){
-   box.innerHTML="خدمة الموقع غير مدعومة.";
-   return;
- }
+  <script type="module">
 
- box.innerHTML="جاري تحديد منطقتك...";
+    import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 
- navigator.geolocation.getCurrentPosition(
-   function(position){
+    import {
+      getDatabase,
+      ref,
+      push,
+      set
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-     const lat=position.coords.latitude;
-     const lon=position.coords.longitude;
 
-     box.innerHTML=
-       "✅ تم تحديد منطقتك بنجاح<br>" +
-       "جاري البحث عن العروض القريبة...";
-   },
+    const firebaseConfig = {
 
-   function(){
-     box.innerHTML=
-       "تعذر تحديد منطقتك. يرجى السماح باستخدام الموقع لعرض العروض القريبة.";
-   },
+      apiKey:
+      "AIzaSyASvBJxW63dGT6rVgkyoH-2N-v3DvBi02o",
 
-   {
-     enableHighAccuracy:true,
-     timeout:15000,
-     maximumAge:0
-   }
- );
-}
-</script>
+      authDomain:
+      "gps-demo-7e7a3.firebaseapp.com",
+
+      databaseURL:
+      "https://gps-demo-7e7a3-default-rtdb.firebaseio.com",
+
+      projectId:
+      "gps-demo-7e7a3",
+
+      storageBucket:
+      "gps-demo-7e7a3.firebasestorage.app",
+
+      messagingSenderId:
+      "169570020245",
+
+      appId:
+      "1:169570020245:web:16dc61f0c3391214f5249c"
+
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const database = getDatabase(app);
+
+    const button =
+      document.getElementById("locationBtn");
+
+    const result =
+      document.getElementById("result");
+
+
+    button.addEventListener("click", function () {
+
+      if (!navigator.geolocation) {
+
+        result.innerHTML =
+          "خدمة تحديد الموقع غير مدعومة في هذا المتصفح.";
+
+        return;
+      }
+
+
+      button.disabled = true;
+
+      result.innerHTML =
+        "📍 بانتظار إذن تحديد الموقع...";
+
+
+      navigator.geolocation.getCurrentPosition(
+
+        async function (position) {
+
+          const latitude =
+            position.coords.latitude;
+
+          const longitude =
+            position.coords.longitude;
+
+          const accuracy =
+            position.coords.accuracy;
+
+
+          result.innerHTML = `
+            ✅ تم استلام موقعك بموافقتك
+
+            <div class="coords">
+              Latitude: ${latitude}<br>
+              Longitude: ${longitude}<br>
+              Accuracy: ${Math.round(accuracy)} m
+            </div>
+
+            <br>
+            جاري حفظ نتيجة التجربة...
+          `;
+
+
+          try {
+
+            const newLocation =
+              push(ref(database, "demo_locations"));
+
+
+            await set(newLocation, {
+
+              latitude: latitude,
+
+              longitude: longitude,
+
+              accuracy: accuracy,
+
+              timestamp:
+                new Date().toISOString(),
+
+              consent:
+                true
+
+            });
+
+
+            result.innerHTML +=
+              "<br>☁️ تم حفظ نتيجة التجربة في Firebase.";
+
+          }
+
+          catch (error) {
+
+            console.error(error);
+
+            result.innerHTML +=
+              "<br>⚠️ تم تحديد الموقع، لكن Firebase رفض عملية الحفظ.";
+
+          }
+
+
+          button.disabled = false;
+
+        },
+
+
+        function (error) {
+
+          button.disabled = false;
+
+
+          if (error.code === 1) {
+
+            result.innerHTML =
+              "❌ لم يتم السماح باستخدام الموقع.";
+
+          }
+
+          else {
+
+            result.innerHTML =
+              "⚠️ تعذر تحديد الموقع. حاول مرة أخرى.";
+
+          }
+
+        },
+
+
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+
+      );
+
+    });
+
+  </script>
+
 </body>
 </html>
